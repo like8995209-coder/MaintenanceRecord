@@ -1,0 +1,913 @@
+<UserControl x:Class="MaintenanceRecordApp.Views.NewRecordView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Microsoft YaHei UI">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Margin="0,0,0,16">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Border Background="#E6EFEC"
+                        CornerRadius="14"
+                        Padding="11,7"
+                        VerticalAlignment="Center"
+                        Margin="0,0,10,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="7" Height="7" Fill="{StaticResource AmberBrush}" Margin="0,0,6,0" />
+                        <TextBlock Text="{Binding Draft.StatusText, StringFormat=当前：{0}}"
+                                   FontSize="11"
+                                   Foreground="{StaticResource MutedBrush}" />
+                        <TextBlock Text="{Binding Draft.LastSavedText, StringFormat= · {0}}"
+                                   FontSize="11"
+                                   Foreground="{StaticResource MutedBrush}" />
+                    </StackPanel>
+                </Border>
+                <Button Content="新建空白记录"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="NewRecord_Click" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="维修记录登记"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextBrush}" />
+                <TextBlock Text="{Binding Draft.OrderNumber, StringFormat=当前编号：{0}}"
+                           FontSize="12"
+                           Foreground="{StaticResource MutedBrush}"
+                           Margin="0,5,0,0" />
+            </StackPanel>
+        </DockPanel>
+
+        <ScrollViewer x:Name="RecordPageScroll"
+                      Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      HorizontalContentAlignment="Stretch">
+            <Grid Width="{Binding ActualWidth, ElementName=RecordPageScroll}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="310" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="基础信息" Style="{StaticResource SectionTitleStyle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="14" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="维修编号" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox Text="{Binding Draft.OrderNumber}"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource InputTextBoxStyle}"
+                                             Background="#EEF3F1" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="外业工单编号（选填）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="ExternalOrderNumberTextBox"
+                                             Text="{Binding Draft.ExternalOrderNumber, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2">
+                                    <TextBlock Text="单据来源 *" Style="{StaticResource FormLabelStyle}" />
+                                    <ComboBox x:Name="SourceCombo"
+                                              ItemsSource="{Binding SourceOptions}"
+                                              SelectedItem="{Binding Draft.Source, Mode=TwoWay}"
+                                              Style="{StaticResource InputComboBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="2">
+                                    <TextBlock Text="维修人员 *" Style="{StaticResource FormLabelStyle}" />
+                                    <ComboBox x:Name="RepairPersonCombo"
+                                              IsEditable="True"
+                                              ItemsSource="{Binding RepairPeople}"
+                                              Text="{Binding Draft.RepairPerson, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="EditableCombo_LostFocus"
+                                              DropDownClosed="EditableCombo_DropDownClosed"
+                                              SelectionChanged="EditableCombo_SelectionChanged"
+                                              KeyUp="EditableCombo_KeyUp"
+                                              KeyDown="EditableCombo_KeyDown"
+                                              Style="{StaticResource InputComboBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="4">
+                                    <TextBlock Text="维修日期 *" Style="{StaticResource FormLabelStyle}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="8" />
+                                            <ColumnDefinition Width="82" />
+                                        </Grid.ColumnDefinitions>
+                                        <DatePicker x:Name="WorkDatePicker"
+                                                    SelectedDate="{Binding Draft.WorkDate, Mode=TwoWay}"
+                                                    Style="{StaticResource InputDatePickerStyle}" />
+                                        <TextBox x:Name="WorkTimeTextBox"
+                                                 Grid.Column="2"
+                                                 Text="{Binding Draft.WorkClock, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputTextBoxStyle}"
+                                                 ToolTip="例如 08:30" />
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Grid.Row="4" Grid.Column="2">
+                                    <TextBlock Text="竣工日期 *" Style="{StaticResource FormLabelStyle}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="8" />
+                                            <ColumnDefinition Width="82" />
+                                        </Grid.ColumnDefinitions>
+                                        <DatePicker x:Name="CompletionDatePicker"
+                                                    SelectedDate="{Binding Draft.CompletionDate, Mode=TwoWay}"
+                                                    Style="{StaticResource InputDatePickerStyle}" />
+                                        <TextBox x:Name="CompletionTimeTextBox"
+                                                 Grid.Column="2"
+                                                 Text="{Binding Draft.CompletionClock, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputTextBoxStyle}"
+                                                 ToolTip="例如 17:20" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="6">
+                                    <TextBlock Text="维修地点 *" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="LocationTextBox"
+                                             Text="{Binding Draft.Location, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="6" Grid.Column="2">
+                                    <TextBlock Text="维修方式 *" Style="{StaticResource FormLabelStyle}" />
+                                    <ComboBox x:Name="RepairMethodCombo"
+                                              IsEditable="True"
+                                              ItemsSource="{Binding RepairMethods}"
+                                              Text="{Binding Draft.RepairMethod, UpdateSourceTrigger=PropertyChanged}"
+                                              LostFocus="EditableCombo_LostFocus"
+                                              DropDownClosed="EditableCombo_DropDownClosed"
+                                              SelectionChanged="EditableCombo_SelectionChanged"
+                                              KeyUp="EditableCombo_KeyUp"
+                                              KeyDown="EditableCombo_KeyDown"
+                                              Style="{StaticResource InputComboBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="8">
+                                    <TextBlock Text="维修原因 *" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="RepairReasonTextBox"
+                                             Text="{Binding Draft.RepairReason, UpdateSourceTrigger=PropertyChanged}"
+                                             Height="68"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalContentAlignment="Top"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="8" Grid.Column="2">
+                                    <TextBlock Text="联系方式（选填）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="ContactTextBox"
+                                             Text="{Binding Draft.Contact, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                            </Grid>
+                            <DockPanel Margin="0,14,0,0">
+                                <Button DockPanel.Dock="Right"
+                                        Content="挂单"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Background="#F8E4D2"
+                                        Foreground="#8B4F20"
+                                        Padding="22,8"
+                                        Click="ParkRecord_Click" />
+                                <TextBlock Text="资料尚未完成时，可先挂单保存，之后从台账继续填写。"
+                                           FontSize="10"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           VerticalAlignment="Center" />
+                            </DockPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="费用明细" Style="{StaticResource SectionTitleStyle}" />
+                            <TextBlock Text="选择已有类型会自动带出参考单价，并按人数、工时或面积计算小计；费用仍可手动调整。"
+                                       FontSize="10"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,-8,0,12" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="杂工类型" Style="{StaticResource FormLabelStyle}" />
+                                    <ComboBox x:Name="OddJobTypeCombo"
+                                              IsEditable="True"
+                                              ItemsSource="{Binding OddJobTypes}"
+                                              Text="{Binding Draft.OddJobType, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource InputComboBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="杂工人数" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="OddJobPeopleTextBox"
+                                             Text="{Binding Draft.OddJobPeople, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="杂工综合价（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="OddJobRateTextBox"
+                                             Text="{Binding Draft.OddJobRateText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2">
+                                    <TextBlock Text="机械类型" Style="{StaticResource FormLabelStyle}" />
+                                    <ComboBox x:Name="MachineryTypeCombo"
+                                              IsEditable="True"
+                                              ItemsSource="{Binding MachineryTypes}"
+                                              Text="{Binding Draft.MachineryType, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource InputComboBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="2">
+                                    <TextBlock Text="台班综合价（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="MachineryRateTextBox"
+                                             Text="{Binding Draft.MachineryRateText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="4">
+                                    <TextBlock Text="还原类型" Style="{StaticResource FormLabelStyle}" />
+                                    <ComboBox x:Name="RestorationTypeCombo"
+                                              IsEditable="True"
+                                              ItemsSource="{Binding RestorationTypes}"
+                                              Text="{Binding Draft.RestorationType, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource InputComboBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="4" Grid.Column="2">
+                                    <TextBlock Text="还原综合单价（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="RestorationUnitPriceTextBox"
+                                             Text="{Binding Draft.RestorationUnitPriceText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="4" Grid.Column="4">
+                                    <TextBlock Text="还原面积 / 长度" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="RestorationAreaTextBox"
+                                             Text="{Binding Draft.RestorationAreaText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="维修过程与费用" Style="{StaticResource SectionTitleStyle}" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="86" />
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="是否杂工" Style="{StaticResource FormLabelStyle}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <RadioButton x:Name="OddJobYesRadio"
+                                                 Content="是"
+                                                 GroupName="OddJob"
+                                                 IsChecked="{Binding Draft.HasOddJob, Mode=TwoWay}"
+                                                 Margin="0,0,18,0" />
+                                    <RadioButton x:Name="OddJobNoRadio"
+                                                 Content="否"
+                                                 GroupName="OddJob"
+                                                 IsChecked="{Binding Draft.HasOddJobNo, Mode=TwoWay}" />
+                                </StackPanel>
+                                <Grid Grid.Column="3" IsEnabled="{Binding Draft.HasOddJob}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="杂工时间" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBox x:Name="OddJobTimeTextBox"
+                                                 Text="{Binding Draft.OddJobTime, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputTextBoxStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="劳务公司" Style="{StaticResource FormLabelStyle}" />
+                                        <ComboBox x:Name="LaborCompanyCombo"
+                                                  IsEditable="True"
+                                                  ItemsSource="{Binding LaborCompanies}"
+                                                  Text="{Binding Draft.LaborCompany, UpdateSourceTrigger=PropertyChanged}"
+                                                  LostFocus="EditableCombo_LostFocus"
+                                                  DropDownClosed="EditableCombo_DropDownClosed"
+                                                  SelectionChanged="EditableCombo_SelectionChanged"
+                                                  KeyUp="EditableCombo_KeyUp"
+                                                  KeyDown="EditableCombo_KeyDown"
+                                                  Style="{StaticResource InputComboBoxStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="4">
+                                        <TextBlock Text="杂工费用（元）" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBox x:Name="OddJobCostTextBox"
+                                                 Text="{Binding Draft.OddJobCostText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputTextBoxStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Grid.Row="2" Text="是否机械" Style="{StaticResource FormLabelStyle}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <RadioButton x:Name="MachineryYesRadio"
+                                                 Content="是"
+                                                 GroupName="Machinery"
+                                                 IsChecked="{Binding Draft.HasMachinery, Mode=TwoWay}"
+                                                 Margin="0,0,18,0" />
+                                    <RadioButton x:Name="MachineryNoRadio"
+                                                 Content="否"
+                                                 GroupName="Machinery"
+                                                 IsChecked="{Binding Draft.HasMachineryNo, Mode=TwoWay}" />
+                                </StackPanel>
+                                <Grid Grid.Row="2" Grid.Column="3" IsEnabled="{Binding Draft.HasMachinery}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="机械时间" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBox x:Name="MachineryTimeTextBox"
+                                                 Text="{Binding Draft.MachineryTime, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputTextBoxStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="机械费用（元）" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBox x:Name="MachineryCostTextBox"
+                                                 Text="{Binding Draft.MachineryCostText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputTextBoxStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Grid.Row="4" Text="是否还原" Style="{StaticResource FormLabelStyle}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <RadioButton x:Name="RestoredYesRadio"
+                                                 Content="是"
+                                                 GroupName="Reseated"
+                                                 IsChecked="{Binding Draft.Restored, Mode=TwoWay}"
+                                                 Margin="0,0,18,0" />
+                                    <RadioButton x:Name="RestoredNoRadio"
+                                                 Content="否"
+                                                 GroupName="Reseated"
+                                                 IsChecked="{Binding Draft.RestoredNo, Mode=TwoWay}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="4" Grid.Column="3" IsEnabled="{Binding Draft.Restored}">
+                                    <TextBlock Text="还原费用（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="RestorationCostTextBox"
+                                             Text="{Binding Draft.RestorationCostText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="14" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="备注" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="NotesTextBox"
+                                             Text="{Binding Draft.Notes, UpdateSourceTrigger=PropertyChanged}"
+                                             Height="58"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalContentAlignment="Top"
+                                             Style="{StaticResource InputTextBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="材料费用（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <Border Height="36"
+                                            Background="{StaticResource MintBrush}"
+                                            CornerRadius="5"
+                                            Padding="10,0">
+                                        <TextBlock Text="{Binding Draft.MaterialCost, StringFormat=¥{0:0.00}}"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource GreenBrush}" />
+                                    </Border>
+                                    <TextBlock Text="材料价格来自导入表，可按数量自动计算。"
+                                               FontSize="10"
+                                               Foreground="{StaticResource MutedBrush}"
+                                               Margin="0,5,0,0" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="材料清单" Style="{StaticResource SectionTitleStyle}" />
+                                <Button Grid.Column="1"
+                                        Content="导入材料表"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Click="ImportMaterials_Click" />
+                            </Grid>
+                            <TextBox Text="{Binding SearchMaterialText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputTextBoxStyle}"
+                                     ToolTip="输入材料名称、规格或单位关键字" />
+                            <TextBlock Text="{Binding MaterialSuggestionText}"
+                                       FontSize="10"
+                                       Foreground="{StaticResource GreenBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="2,6,2,0" />
+                            <TextBlock Text="材料库检索（可勾选多项）"
+                                       Style="{StaticResource FormLabelStyle}"
+                                       Margin="0,10,0,5" />
+                            <DataGrid x:Name="MaterialLibraryGrid"
+                                      ItemsSource="{Binding FilteredMaterials}"
+                                      Height="180"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="选择" Width="54">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          Click="MaterialSelection_Click"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="材料名称" Width="*" Binding="{Binding Name}" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="规格型号" Width="130" Binding="{Binding Specification}" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="单位" Width="62" Binding="{Binding Unit}" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="单价（元）" Width="100"
+                                                        Binding="{Binding Price, StringFormat=0.00}"
+                                                        IsReadOnly="True" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <DockPanel Margin="0,9,0,0">
+                                <TextBlock DockPanel.Dock="Right"
+                                           Text="{Binding Draft.MaterialCost, StringFormat=材料费用：¥{0:0.00}}"
+                                           Foreground="{StaticResource GreenBrush}"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Text="勾选材料后，材料费用将按“单价 × 数量”自动计算。"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           FontSize="11" />
+                            </DockPanel>
+
+                            <DataGrid x:Name="SelectedMaterialsGrid"
+                                      ItemsSource="{Binding Draft.Materials}"
+                                      Height="178"
+                                      Margin="0,12,0,0"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="材料名称" Width="*" Binding="{Binding Name}" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="规格" Width="100" Binding="{Binding Specification}" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="数量" Width="72" Binding="{Binding Quantity, UpdateSourceTrigger=PropertyChanged, StringFormat=0.##}" />
+                                    <DataGridTextColumn Header="单位" Width="58" Binding="{Binding Unit}" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="单价" Width="75" Binding="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}" />
+                                    <DataGridTextColumn Header="小计" Width="82" Binding="{Binding Subtotal, StringFormat=0.00}" IsReadOnly="True" />
+                                    <DataGridTemplateColumn Header="" Width="42">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="×"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="7,2"
+                                                        Click="RemoveMaterial_Click" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="施工照片" Style="{StaticResource SectionTitleStyle}" />
+                            <TextBlock Text="每类最多 4 张。记录维修前、维修后、施工现场、机械使用和还原路面照片。"
+                                       FontSize="11"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       Margin="0,-9,0,14" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Border Background="#F8FBFA" CornerRadius="10" Padding="12">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                                <Button Content="选择"
+                                                        Tag="Before"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Padding="10,5"
+                                                        Click="AddPhotos_Click" />
+                                                <Button Content="清空"
+                                                        Tag="Before"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="10,5"
+                                                        Margin="6,0,0,0"
+                                                        Click="ClearPhotos_Click" />
+                                            </StackPanel>
+                                            <TextBlock Text="施工前照片" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <ItemsControl ItemsSource="{Binding Draft.BeforePhotos}"
+                                                      Tag="Before"
+                                                      Margin="0,10,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="84"
+                                                            Height="64"
+                                                            Margin="0,0,7,7"
+                                                            CornerRadius="6"
+                                                            ClipToBounds="True">
+                                                        <Grid>
+                                                            <Image Source="{Binding Converter={StaticResource ImagePathConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                            <Button Content="×"
+                                                                    Tag="{Binding}"
+                                                                    HorizontalAlignment="Right"
+                                                                    VerticalAlignment="Top"
+                                                                    Width="22"
+                                                                    Height="22"
+                                                                    Padding="0"
+                                                                    Click="RemovePhoto_Click" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="2" Background="#F8FBFA" CornerRadius="10" Padding="12">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                                <Button Content="选择"
+                                                        Tag="During"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Padding="10,5"
+                                                        Click="AddPhotos_Click" />
+                                                <Button Content="清空"
+                                                        Tag="During"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="10,5"
+                                                        Margin="6,0,0,0"
+                                                        Click="ClearPhotos_Click" />
+                                            </StackPanel>
+                                            <TextBlock Text="维修中照片" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <ItemsControl ItemsSource="{Binding Draft.DuringPhotos}"
+                                                      Tag="During"
+                                                      Margin="0,10,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="84" Height="64" Margin="0,0,7,7"
+                                                            CornerRadius="6" ClipToBounds="True">
+                                                        <Grid>
+                                                            <Image Source="{Binding Converter={StaticResource ImagePathConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                            <Button Content="×" Tag="{Binding}"
+                                                                    HorizontalAlignment="Right"
+                                                                    VerticalAlignment="Top"
+                                                                    Width="22" Height="22" Padding="0"
+                                                                    Click="RemovePhoto_Click" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="2" Background="#F8FBFA" CornerRadius="10" Padding="12">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                                <Button Content="选择"
+                                                        Tag="After"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Padding="10,5"
+                                                        Click="AddPhotos_Click" />
+                                                <Button Content="清空"
+                                                        Tag="After"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="10,5"
+                                                        Margin="6,0,0,0"
+                                                        Click="ClearPhotos_Click" />
+                                            </StackPanel>
+                                            <TextBlock Text="施工后照片" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <ItemsControl ItemsSource="{Binding Draft.AfterPhotos}"
+                                                      Tag="After"
+                                                      Margin="0,10,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="84" Height="64" Margin="0,0,7,7"
+                                                            CornerRadius="6" ClipToBounds="True">
+                                                        <Grid>
+                                                            <Image Source="{Binding Converter={StaticResource ImagePathConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                            <Button Content="×" Tag="{Binding}"
+                                                                    HorizontalAlignment="Right"
+                                                                    VerticalAlignment="Top"
+                                                                    Width="22" Height="22" Padding="0"
+                                                                    Click="RemovePhoto_Click" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="2" Grid.Column="2" Background="#F8FBFA" CornerRadius="10" Padding="12">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                                <Button Content="选择"
+                                                        Tag="Restoration"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Padding="10,5"
+                                                        Click="AddPhotos_Click" />
+                                                <Button Content="清空"
+                                                        Tag="Restoration"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="10,5"
+                                                        Margin="6,0,0,0"
+                                                        Click="ClearPhotos_Click" />
+                                            </StackPanel>
+                                            <TextBlock Text="还原照片" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <ItemsControl ItemsSource="{Binding Draft.RestorationPhotos}"
+                                                      Tag="Restoration"
+                                                      Margin="0,10,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="84" Height="64" Margin="0,0,7,7"
+                                                            CornerRadius="6" ClipToBounds="True">
+                                                        <Grid>
+                                                            <Image Source="{Binding Converter={StaticResource ImagePathConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                            <Button Content="×" Tag="{Binding}"
+                                                                    HorizontalAlignment="Right"
+                                                                    VerticalAlignment="Top"
+                                                                    Width="22" Height="22" Padding="0"
+                                                                    Click="RemovePhoto_Click" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="4"
+                                        Grid.ColumnSpan="3"
+                                        Background="#F8FBFA"
+                                        CornerRadius="10"
+                                        Padding="12">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                                <Button Content="选择"
+                                                        Tag="Machinery"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Padding="10,5"
+                                                        Click="AddPhotos_Click" />
+                                                <Button Content="清空"
+                                                        Tag="Machinery"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="10,5"
+                                                        Margin="6,0,0,0"
+                                                        Click="ClearPhotos_Click" />
+                                            </StackPanel>
+                                            <TextBlock Text="机械使用照片" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <ItemsControl ItemsSource="{Binding Draft.MachineryPhotos}"
+                                                      Tag="Machinery"
+                                                      Margin="0,10,0,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="84" Height="64" Margin="0,0,7,7"
+                                                            CornerRadius="6" ClipToBounds="True">
+                                                        <Grid>
+                                                            <Image Source="{Binding Converter={StaticResource ImagePathConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                            <Button Content="×" Tag="{Binding}"
+                                                                    HorizontalAlignment="Right"
+                                                                    VerticalAlignment="Top"
+                                                                    Width="22" Height="22" Padding="0"
+                                                                    Click="RemovePhoto_Click" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="完成进度" Style="{StaticResource SectionTitleStyle}" />
+                            <ProgressBar Height="8"
+                                         Value="{Binding Draft.CompletionPercent, Mode=OneWay}"
+                                         Maximum="100"
+                                         Foreground="{StaticResource GreenBrush}"
+                                         Background="{StaticResource MintBrush}"
+                                         BorderThickness="0" />
+                            <TextBlock Text="{Binding Draft.CompletionSummary}"
+                                       TextWrapping="Wrap"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       Margin="0,12,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="费用汇总" Style="{StaticResource SectionTitleStyle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="28" />
+                                    <RowDefinition Height="28" />
+                                    <RowDefinition Height="28" />
+                                    <RowDefinition Height="28" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="材料费用" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Grid.Column="1" Text="{Binding Draft.MaterialCost, StringFormat=¥{0:0.00}}" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="1" Text="机械费用" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Draft.MachineryCost, StringFormat=¥{0:0.00}}" />
+                                <TextBlock Grid.Row="2" Text="杂工费用" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Draft.OddJobCost, StringFormat=¥{0:0.00}}" />
+                                <TextBlock Grid.Row="3" Text="还原费用" Foreground="{StaticResource MutedBrush}" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Draft.RestorationCost, StringFormat=¥{0:0.00}}" />
+                            </Grid>
+                            <Border Background="{StaticResource DeepGreenBrush}"
+                                    CornerRadius="9"
+                                    Padding="12"
+                                    Margin="0,12,0,0">
+                                <DockPanel>
+                                    <TextBlock Text="总费用" Foreground="#BBD7D0" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Draft.TotalCost, StringFormat=¥{0:0.00}}"
+                                               Foreground="White"
+                                               FontSize="20"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Right" />
+                                </DockPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="验收与制单" Style="{StaticResource SectionTitleStyle}" />
+                            <TextBlock Text="验收结果 *" Style="{StaticResource FormLabelStyle}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <RadioButton x:Name="AcceptedYesRadio"
+                                             Content="是"
+                                             GroupName="Accepted"
+                                             IsChecked="{Binding Draft.AcceptedYes, Mode=TwoWay}"
+                                             Margin="0,0,18,0" />
+                                <RadioButton x:Name="AcceptedNoRadio"
+                                             Content="否"
+                                             GroupName="Accepted"
+                                             IsChecked="{Binding Draft.AcceptedNo, Mode=TwoWay}" />
+                            </StackPanel>
+                            <TextBlock Text="制单人 *" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox x:Name="PreparedByTextBox"
+                                     Text="{Binding Draft.PreparedBy, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputTextBoxStyle}"
+                                     Margin="0,0,0,10" />
+                            <TextBlock Text="验收部门" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox x:Name="ReviewDepartmentTextBox"
+                                     Text="{Binding Draft.ReviewDepartment, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputTextBoxStyle}"
+                                     Margin="0,0,0,10" />
+                            <TextBlock Text="现场负责人" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox x:Name="ResponsiblePersonTextBox"
+                                     Text="{Binding Draft.ResponsiblePerson, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputTextBoxStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Button Content="保存台账"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Height="46"
+                                Click="SaveRecord_Click" />
+                        <Button x:Name="GenerateButton"
+                                Grid.Column="2"
+                                Content="一键导出"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Height="46"
+                                IsEnabled="{Binding Draft.CanGenerate}"
+                                Click="GeneratePdf_Click" />
+                        <Button Content="今日情况"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="3"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Height="46"
+                                Click="ExportToday_Click" />
+                    </Grid>
+                    <TextBlock Text="保存台账后自动保存；一键导出为横版 A4；今日情况为单页竖版 A4。"
+                               FontSize="10"
+                               Foreground="{StaticResource MutedBrush}"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="12,8,12,0" />
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

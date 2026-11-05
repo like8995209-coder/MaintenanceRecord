@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="管网维修">
+  <defs>
+    <linearGradient id="glass" x1="40" y1="24" x2="476" y2="492" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#03142A"/>
+      <stop offset="0.52" stop-color="#0A4D86"/>
+      <stop offset="1" stop-color="#30D2DC"/>
+    </linearGradient>
+    <linearGradient id="letter" x1="150" y1="120" x2="330" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A4B3BE"/>
+      <stop offset="0.18" stop-color="#374854"/>
+      <stop offset="0.43" stop-color="#09121C"/>
+      <stop offset="0.72" stop-color="#162C3A"/>
+      <stop offset="1" stop-color="#050C14"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="48%" r="58%">
+      <stop offset="0" stop-color="#3ACFE9" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#3ACFE9" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="8" y="8" width="496" height="496" rx="112"
+        fill="url(#glass)" stroke="#083677" stroke-width="10"/>
+  <rect x="17" y="17" width="478" height="478" rx="104"
+        fill="url(#glow)" stroke="#82DCF6" stroke-opacity="0.6" stroke-width="4"/>
+  <ellipse cx="256" cy="122" rx="208" ry="106" fill="#FFFFFF" opacity="0.35"/>
+  <path d="M82 52L250 34L112 292L54 230Z" fill="#FFFFFF" opacity="0.12"/>
+  <path d="M47 208A208 208 0 0 1 226 28" fill="none"
+        stroke="#FFFFFF" stroke-opacity="0.88" stroke-linecap="round" stroke-width="6"/>
+  <path d="M462 288A208 208 0 0 1 340 493" fill="none"
+        stroke="#ACF4F8" stroke-opacity="0.55" stroke-linecap="round" stroke-width="4"/>
+  <text x="256" y="383"
+        text-anchor="middle"
+        font-family="STXingkai, KaiTi, STKaiti, serif"
+        font-size="342"
+        fill="url(#letter)"
+        stroke="#11CDE7"
+        stroke-opacity="0.9"
+        stroke-width="7"
+        transform="rotate(-5 256 278)">
+    修
+  </text>
+</svg>

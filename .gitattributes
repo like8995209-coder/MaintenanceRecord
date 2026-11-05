@@ -1,0 +1,15 @@
+* text=auto
+*.cs text
+*.xaml text
+*.csproj text
+*.iss text
+*.ps1 text
+*.md text
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.xlsx binary
+*.exe binary
+*.dll binary

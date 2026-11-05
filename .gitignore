@@ -1,0 +1,35 @@
+# Build output
+**/bin/
+**/obj/
+**/Publish/
+/Builds/
+/test-artifacts/
+/reference-analysis/
+/tools/spreadsheet-inspect/
+
+# Local databases and logs
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# Generated icon preview images
+/MaintenanceRecordApp/Assets/app-icon-preview.png
+/MaintenanceRecordApp/Assets/app-icon-preview-sizes.png
+
+# Desktop and editor files
+.vs/
+.vscode/
+*.user
+*.suo
+Thumbs.db
+.DS_Store
+
+# Local signing and secrets
+*.pfx
+*.snk
+*.cer
+*.key
+*.pem
+.env
+.env.*
