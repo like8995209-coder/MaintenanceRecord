@@ -278,7 +278,8 @@ public static class UsbBackupService
             FileMode.Open,
             FileAccess.Read,
             FileShare.ReadWrite | FileShare.Delete);
-        return Convert.ToHexString(SHA256.HashData(stream));
+        using var sha256 = SHA256.Create();
+        return Convert.ToHexString(sha256.ComputeHash(stream));
     }
 
     private static void CopyFile(string sourceFile, string destinationFile)

@@ -2,19 +2,22 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <SatelliteResourceLanguages>zh-Hans;en</SatelliteResourceLanguages>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
     <DebugType>None</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <AssemblyName>MaintenanceRecord</AssemblyName>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>4.1.0</Version>
-    <AssemblyVersion>4.1.0.0</AssemblyVersion>
-    <FileVersion>4.1.0.0</FileVersion>
+    <Version>6.6.6</Version>
+    <AssemblyVersion>6.6.6.0</AssemblyVersion>
+    <FileVersion>6.6.6.0</FileVersion>
+    <InformationalVersion>6.6.6</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Authors>Pipe Maintenance Contributors</Authors>
     <Product>管网维修</Product>
     <Description>管网维修登记、台账状态管理、材料库、筛选统计与 A4 PDF 输出程序。</Description>

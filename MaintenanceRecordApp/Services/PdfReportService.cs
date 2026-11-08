@@ -188,7 +188,7 @@ public static class PdfReportService
         var pen = new XPen(Line, 0.55);
         var columns = new[] { 0.12, 0.34, 0.12, 0.13, 0.14, 0.15 };
         var widths = columns.Select(value => value * width).ToArray();
-        var headers = new[] { "项目", "类型 / 劳务公司", "人数/台数", "时间/面积", "单价/综合价", "小计" };
+        var headers = new[] { "项目", "类型 / 劳务公司", "数量", "工时 / 尺寸", "单价", "小计" };
         graphics.DrawRectangle(new XSolidBrush(Pale), x, y, width, headerHeight);
         graphics.DrawRectangle(pen, x, y, width, headerHeight);
         DrawCellsCentered(graphics, x, y, widths, headerHeight, headers, CreateFont(7.5, XFontStyleEx.Bold), pen);
@@ -199,27 +199,41 @@ public static class PdfReportService
             {
                 "杂工",
                 Combine(record.OddJobType, record.LaborCompany),
-                record.HasOddJob ? record.OddJobPeople.ToString(CultureInfo.InvariantCulture) : "",
-                record.HasOddJob ? record.OddJobTime : "",
-                record.HasOddJob ? record.OddJobRateText : "",
+                record.HasOddJob
+                    ? $"{record.OddJobPeople.ToString(CultureInfo.InvariantCulture)} 人"
+                    : "",
+                record.HasOddJob
+                    ? $"{record.OddJobTime} 小时"
+                    : "",
+                record.HasOddJob
+                    ? $"{record.OddJobRateText} 元/小时"
+                    : "",
                 Money(record.OddJobCost, record.HasOddJob),
             },
             new[]
             {
                 "机械",
                 record.MachineryType,
-                record.HasMachinery ? "1" : "",
-                record.HasMachinery ? record.MachineryTime : "",
-                record.HasMachinery ? record.MachineryRateText : "",
+                record.HasMachinery ? "1 台" : "",
+                record.HasMachinery
+                    ? $"{record.MachineryTime} 小时"
+                    : "",
+                record.HasMachinery
+                    ? $"{record.MachineryRateText} 元/小时"
+                    : "",
                 Money(record.MachineryCost, record.HasMachinery),
             },
             new[]
             {
                 "还原",
-                record.RestorationType,
-                record.Restored ? record.RestorationAreaText : "",
-                record.Restored ? "㎡" : "",
-                record.Restored ? record.RestorationUnitPriceText : "",
+                record.Restored
+                    ? Combine(record.RestorationType, record.RestorationDimensionsText)
+                    : "",
+                record.Restored ? record.RestorationVolumeText : "",
+                "",
+                record.Restored
+                    ? $"{record.RestorationUnitPriceText} 元/m³"
+                    : "",
                 Money(record.RestorationCost, record.Restored),
             },
         };

@@ -12,6 +12,13 @@ public sealed class MaintenanceRecordTests
         Path.Combine(Path.GetTempPath(), "MaintenanceRecordTests", "artifacts");
 
     [Fact]
+    public void ApplicationVersionIsSetTo666()
+    {
+        var version = typeof(MaintenanceRecordApp.App).Assembly.GetName().Version;
+        Assert.Equal("6.6.6", version?.ToString(3));
+    }
+
+    [Fact]
     public void MaterialWorkbookIsRecognizedAndHashedForDuplicateRemoval()
     {
         Directory.CreateDirectory(ArtifactDirectory);

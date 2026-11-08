@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MaintenanceRecordApp.Models;
@@ -113,6 +114,15 @@ public partial class MaintenanceRecord : ObservableObject
     private string _restorationAreaText = string.Empty;
 
     [ObservableProperty]
+    private string _restorationLengthText = string.Empty;
+
+    [ObservableProperty]
+    private string _restorationWidthText = string.Empty;
+
+    [ObservableProperty]
+    private string _restorationHeightText = string.Empty;
+
+    [ObservableProperty]
     private bool? _accepted;
 
     [ObservableProperty]
@@ -146,13 +156,70 @@ public partial class MaintenanceRecord : ObservableObject
     public decimal MaterialCost => Materials.Sum(item => item.Subtotal);
 
     [JsonIgnore]
-    public decimal OddJobCost => HasOddJob ? ParseCost(OddJobCostText) ?? 0 : 0;
+    public decimal OddJobCost =>
+        HasOddJob
+            ? CalculateHourlyCost(OddJobRateText, OddJobTime, Math.Max(1, OddJobPeople)) ??
+              ParseCost(OddJobCostText) ??
+              0
+            : 0;
 
     [JsonIgnore]
-    public decimal MachineryCost => HasMachinery ? ParseCost(MachineryCostText) ?? 0 : 0;
+    public decimal MachineryCost =>
+        HasMachinery
+            ? CalculateHourlyCost(MachineryRateText, MachineryTime) ??
+              ParseCost(MachineryCostText) ??
+              0
+            : 0;
 
     [JsonIgnore]
-    public decimal RestorationCost => Restored ? ParseCost(RestorationCostText) ?? 0 : 0;
+    public decimal? RestorationVolume
+    {
+        get
+        {
+            var length = ParsePositiveNumber(RestorationLengthText);
+            var width = ParsePositiveNumber(RestorationWidthText);
+            var height = ParsePositiveNumber(RestorationHeightText);
+            if (length.HasValue || width.HasValue || height.HasValue)
+            {
+                return length.HasValue && width.HasValue && height.HasValue
+                    ? length.Value * width.Value * height.Value
+                    : null;
+            }
+
+            return ParsePositiveNumber(RestorationAreaText);
+        }
+    }
+
+    [JsonIgnore]
+    public string RestorationVolumeText =>
+        RestorationVolume.HasValue
+            ? $"{RestorationVolume.Value:0.###} m³"
+            : string.Empty;
+
+    [JsonIgnore]
+    public string RestorationDimensionsText
+    {
+        get
+        {
+            var length = ParsePositiveNumber(RestorationLengthText);
+            var width = ParsePositiveNumber(RestorationWidthText);
+            var height = ParsePositiveNumber(RestorationHeightText);
+            if (length.HasValue && width.HasValue && height.HasValue)
+            {
+                return $"长 {length.Value:0.###} × 宽 {width.Value:0.###} × 高 {height.Value:0.###} m";
+            }
+
+            return string.IsNullOrWhiteSpace(RestorationAreaText)
+                ? string.Empty
+                : $"原工程量 {RestorationAreaText.Trim()}";
+        }
+    }
+
+    [JsonIgnore]
+    public decimal RestorationCost =>
+        Restored
+            ? CalculateRestorationCost() ?? ParseCost(RestorationCostText) ?? 0
+            : 0;
 
     [JsonIgnore]
     public decimal TotalCost => OddJobCost + MachineryCost + MaterialCost + RestorationCost;
@@ -198,20 +265,30 @@ public partial class MaintenanceRecord : ObservableObject
                 "劳务公司");
             AddMissing(
                 missing,
-                HasOddJob && string.IsNullOrWhiteSpace(OddJobCostText),
-                "杂工费用");
+                HasOddJob &&
+                string.IsNullOrWhiteSpace(OddJobRateText) &&
+                string.IsNullOrWhiteSpace(OddJobCostText),
+                "杂工小时单价");
             AddMissing(
                 missing,
                 HasMachinery && string.IsNullOrWhiteSpace(MachineryTime),
                 "机械时间");
             AddMissing(
                 missing,
-                HasMachinery && string.IsNullOrWhiteSpace(MachineryCostText),
-                "机械费用");
+                HasMachinery &&
+                string.IsNullOrWhiteSpace(MachineryRateText) &&
+                string.IsNullOrWhiteSpace(MachineryCostText),
+                "机械小时单价");
             AddMissing(
                 missing,
-                Restored && string.IsNullOrWhiteSpace(RestorationCostText),
-                "还原费用");
+                Restored &&
+                string.IsNullOrWhiteSpace(RestorationUnitPriceText) &&
+                string.IsNullOrWhiteSpace(RestorationCostText),
+                "还原单价");
+            AddMissing(
+                missing,
+                Restored && RestorationVolume is null,
+                "还原长宽高");
             return missing;
         }
     }
@@ -221,7 +298,19 @@ public partial class MaintenanceRecord : ObservableObject
 
     [JsonIgnore]
     public double CompletionPercent =>
-        Math.Round((12 - MissingRequirements.Count) / 12d * 100, 0);
+        CanGenerate
+            ? 100
+            : Math.Round(
+                Math.Max(0, RequiredFieldCount - MissingRequirements.Count) /
+                (double)RequiredFieldCount *
+                100,
+                0);
+
+    private int RequiredFieldCount =>
+        12 +
+        (HasOddJob ? 3 : 0) +
+        (HasMachinery ? 2 : 0) +
+        (Restored ? 2 : 0);
 
     [JsonIgnore]
     public bool HasOddJobNo
@@ -425,6 +514,9 @@ public partial class MaintenanceRecord : ObservableObject
             RestorationType = string.Empty;
             RestorationUnitPriceText = string.Empty;
             RestorationAreaText = string.Empty;
+            RestorationLengthText = string.Empty;
+            RestorationWidthText = string.Empty;
+            RestorationHeightText = string.Empty;
         }
         OnPropertyChanged(nameof(RestoredNo));
         NotifyCalculatedProperties();
@@ -455,6 +547,12 @@ public partial class MaintenanceRecord : ObservableObject
     partial void OnRestorationUnitPriceTextChanged(string value) => NotifyAll();
 
     partial void OnRestorationAreaTextChanged(string value) => NotifyAll();
+
+    partial void OnRestorationLengthTextChanged(string value) => NotifyAll();
+
+    partial void OnRestorationWidthTextChanged(string value) => NotifyAll();
+
+    partial void OnRestorationHeightTextChanged(string value) => NotifyAll();
 
     partial void OnRestorationCostTextChanged(string value) => NotifyAll();
 
@@ -493,6 +591,9 @@ public partial class MaintenanceRecord : ObservableObject
         OnPropertyChanged(nameof(MaterialCost));
         OnPropertyChanged(nameof(OddJobCost));
         OnPropertyChanged(nameof(MachineryCost));
+        OnPropertyChanged(nameof(RestorationVolume));
+        OnPropertyChanged(nameof(RestorationVolumeText));
+        OnPropertyChanged(nameof(RestorationDimensionsText));
         OnPropertyChanged(nameof(RestorationCost));
         OnPropertyChanged(nameof(TotalCost));
         OnPropertyChanged(nameof(CanGenerate));
@@ -530,6 +631,46 @@ public partial class MaintenanceRecord : ObservableObject
                decimal.TryParse(value, NumberStyles.Number, CultureInfo.CurrentCulture, out parsed)
             ? parsed
             : null;
+    }
+
+    private static decimal? CalculateHourlyCost(string rateText, string timeText, int units = 1)
+    {
+        var rate = ParsePositiveNumber(rateText, allowZero: true);
+        var hours = ParsePositiveNumber(timeText, allowZero: true);
+        return rate.HasValue && hours.HasValue
+            ? rate.Value * hours.Value * Math.Max(1, units)
+            : null;
+    }
+
+    private decimal? CalculateRestorationCost()
+    {
+        var unitPrice = ParsePositiveNumber(RestorationUnitPriceText, allowZero: true);
+        return unitPrice.HasValue && RestorationVolume.HasValue
+            ? unitPrice.Value * RestorationVolume.Value
+            : null;
+    }
+
+    private static decimal? ParsePositiveNumber(
+        string value,
+        bool allowZero = false)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var match = Regex.Match(value, @"\d+(?:[.,]\d+)?");
+        if (!match.Success ||
+            !decimal.TryParse(
+                match.Value.Replace(',', '.'),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var parsed))
+        {
+            return null;
+        }
+
+        return allowZero ? parsed >= 0 ? parsed : null : parsed > 0 ? parsed : null;
     }
 
     private static string FormatDateTime(DateTime? date, string clock)

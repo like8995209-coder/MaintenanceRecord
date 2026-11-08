@@ -204,7 +204,7 @@ public static partial class MaterialExcelService
     }
 
     private static string Normalize(string value) =>
-        WhitespaceRegex().Replace(value ?? string.Empty, string.Empty)
+        WhitespaceRegex.Replace(value ?? string.Empty, string.Empty)
             .Replace("（", string.Empty)
             .Replace("）", string.Empty)
             .Replace("(", string.Empty)
@@ -223,8 +223,7 @@ public static partial class MaterialExcelService
         range.Style.Border.SetInsideBorder(XLBorderStyleValues.Thin);
     }
 
-    [GeneratedRegex(@"\s+")]
-    private static partial Regex WhitespaceRegex();
+    private static readonly Regex WhitespaceRegex = new(@"\s+", RegexOptions.Compiled);
 
     private sealed class ColumnMap
     {

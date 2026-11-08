@@ -447,10 +447,6 @@ public partial class NewRecordView : UserControl
                 draft.OddJobRateText = OddJobRateTextBox.Text.Trim();
             }
             draft.LaborCompany = LaborCompanyCombo.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(OddJobCostTextBox.Text))
-            {
-                draft.OddJobCostText = OddJobCostTextBox.Text.Trim();
-            }
             draft.HasMachinery = MachineryYesRadio.IsChecked == true;
             draft.MachineryTime = MachineryTimeTextBox.Text.Trim();
             draft.MachineryType = MachineryTypeCombo.Text.Trim();
@@ -458,21 +454,15 @@ public partial class NewRecordView : UserControl
             {
                 draft.MachineryRateText = MachineryRateTextBox.Text.Trim();
             }
-            if (!string.IsNullOrWhiteSpace(MachineryCostTextBox.Text))
-            {
-                draft.MachineryCostText = MachineryCostTextBox.Text.Trim();
-            }
             draft.Restored = RestoredYesRadio.IsChecked == true;
             draft.RestorationType = RestorationTypeCombo.Text.Trim();
             if (!string.IsNullOrWhiteSpace(RestorationUnitPriceTextBox.Text))
             {
                 draft.RestorationUnitPriceText = RestorationUnitPriceTextBox.Text.Trim();
             }
-            draft.RestorationAreaText = RestorationAreaTextBox.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(RestorationCostTextBox.Text))
-            {
-                draft.RestorationCostText = RestorationCostTextBox.Text.Trim();
-            }
+            draft.RestorationLengthText = RestorationLengthTextBox.Text.Trim();
+            draft.RestorationWidthText = RestorationWidthTextBox.Text.Trim();
+            draft.RestorationHeightText = RestorationHeightTextBox.Text.Trim();
 
             draft.Accepted = AcceptedYesRadio.IsChecked == true
                 ? true

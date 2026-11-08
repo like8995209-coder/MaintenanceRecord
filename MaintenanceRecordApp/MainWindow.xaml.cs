@@ -35,7 +35,7 @@ public partial class MainWindow : Window
         if (_backupInProgress)
         {
             MessageBox.Show(
-                "U 盘备份或导入正在进行，请等待文件复制和校验完成后再退出。",
+                "U 盘备份正在进行，请等待文件复制和校验完成后再退出。",
                 "U盘操作进行中",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -125,89 +125,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void ImportFromUsb_Click(object sender, RoutedEventArgs e)
-    {
-        var drive = SelectSingleUsbDrive("导入");
-        if (drive is null)
-        {
-            return;
-        }
-
-        if (MessageBox.Show(
-                $"检测到 U 盘：{drive.DisplayName}\n\n" +
-                "程序将查找 U 盘中的“管网维修数据”或名称相近的备份文件夹，" +
-                "并把缺失或内容不同的文件同步到本机。\n\n" +
-                "导入可能更新本机台账数据库。程序会先自动创建当前数据库安全副本，但仍然建议先完成一次备份。\n\n" +
-                "是否开始导入？",
-                "一键U盘导入",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning,
-                MessageBoxResult.No) != MessageBoxResult.Yes)
-        {
-            return;
-        }
-
-        SetUsbButtonsEnabled(false);
-        _backupInProgress = true;
-        MainContent.IsEnabled = false;
-        Mouse.OverrideCursor = Cursors.Wait;
-        string? safetyBackup = null;
-        try
-        {
-            safetyBackup = ViewModel.PrepareForUsbImport();
-            var dataDirectory = ViewModel.DataDirectory;
-            ViewModel.StatusMessage = "正在从 U 盘增量导入并校验文件，请稍候...";
-            var result = await Task.Run(
-                () => UsbBackupService.Import(dataDirectory, drive));
-            ViewModel.CompleteUsbImport();
-            MessageBox.Show(
-                $"U 盘数据导入完成，文件校验无误。\n\n" +
-                $"导入位置：{result.DestinationDirectory}\n" +
-                $"新增或更新：{result.CopiedFiles} 个文件\n" +
-                $"已存在跳过：{result.SkippedFiles} 个文件\n" +
-                $"完整校验：{result.VerifiedFiles} 个文件\n" +
-                $"导入前数据库副本：{safetyBackup}\n\n" +
-                "请通过 Windows 任务栏“安全删除硬件并弹出媒体”安全弹出 U 盘后再拔出。",
-                "导入与校验完成",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-        catch (Exception exception)
-        {
-            var recovered = false;
-            if (safetyBackup is not null)
-            {
-                try
-                {
-                    ViewModel.RestoreAfterFailedUsbImport(safetyBackup);
-                    recovered = true;
-                }
-                catch
-                {
-                    recovered = false;
-                }
-            }
-
-            var logPath = WriteUsbErrorLog("U盘导入失败", exception);
-            MessageBox.Show(
-                $"U 盘导入失败：\n{exception.Message}\n\n" +
-                (recovered
-                    ? "已自动恢复导入前的数据库。"
-                    : "未能自动恢复数据库，请保留现场并检查诊断日志。") +
-                $"\n\n安全副本：{safetyBackup ?? "未创建"}\n诊断日志：{logPath}",
-                "导入失败",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-        }
-        finally
-        {
-            Mouse.OverrideCursor = null;
-            SetUsbButtonsEnabled(true);
-            MainContent.IsEnabled = true;
-            _backupInProgress = false;
-        }
-    }
-
     private UsbDriveInfo? SelectSingleUsbDrive(string operationName)
     {
         var drives = ViewModel.DetectUsbDrives();
@@ -237,7 +154,6 @@ public partial class MainWindow : Window
     private void SetUsbButtonsEnabled(bool enabled)
     {
         BackupUsbButton.IsEnabled = enabled;
-        ImportUsbButton.IsEnabled = enabled;
     }
 
     private string WriteUsbErrorLog(string prefix, Exception exception)

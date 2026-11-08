@@ -304,6 +304,7 @@ public sealed class DatabaseService
                 ('repair_method', '排查处理'),
                 ('repair_method', '其他'),
                 ('repair_person', '管网部员工'),
+                ('odd_job_type', '瓦工'),
                 ('odd_job_type', '挖工'),
                 ('odd_job_type', '辅助管道工'),
                 ('odd_job_type', '管道工'),

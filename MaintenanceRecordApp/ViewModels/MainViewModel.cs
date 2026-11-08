@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Windows.Data;
 using System.Windows.Threading;
@@ -28,6 +27,7 @@ public partial class MainViewModel : ObservableObject
     private static readonly IReadOnlyDictionary<string, decimal> OddJobReferenceRates =
         new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
         {
+            ["瓦工"] = 25m,
             ["挖工"] = 15m,
             ["辅助管道工"] = 18.75m,
             ["管道工"] = 24.375m,
@@ -143,6 +143,17 @@ public partial class MainViewModel : ObservableObject
     public string ImagesDirectory => _database.ImagesDirectory;
 
     public string MaterialTemplatePath => Path.Combine(LibraryDirectory, "材料库导入模板.xlsx");
+
+    public string AppVersionText
+    {
+        get
+        {
+            var version = typeof(MainViewModel).Assembly.GetName().Version;
+            return version is null
+                ? "版本 6.6.6"
+                : $"版本 {version.ToString(3)}";
+        }
+    }
 
     public MaintenanceRecord Draft
     {
@@ -1243,81 +1254,11 @@ public partial class MainViewModel : ObservableObject
                 Draft.RestorationUnitPriceText = restorationRate.ToString(CultureInfo.InvariantCulture);
             }
 
-            if (propertyName is nameof(MaintenanceRecord.OddJobType) or
-                nameof(MaintenanceRecord.OddJobRateText) or
-                nameof(MaintenanceRecord.OddJobTime) or
-                nameof(MaintenanceRecord.OddJobPeople))
-            {
-                UpdateOddJobCostIfEmpty();
-            }
-
-            if (propertyName is nameof(MaintenanceRecord.MachineryType) or
-                nameof(MaintenanceRecord.MachineryRateText) or
-                nameof(MaintenanceRecord.MachineryTime))
-            {
-                UpdateMachineryCostIfEmpty();
-            }
-
-            if (propertyName is nameof(MaintenanceRecord.RestorationType) or
-                nameof(MaintenanceRecord.RestorationUnitPriceText) or
-                nameof(MaintenanceRecord.RestorationAreaText))
-            {
-                UpdateRestorationCostIfEmpty();
-            }
         }
         finally
         {
             _applyingReferenceValue = false;
         }
-    }
-
-    private void UpdateOddJobCostIfEmpty()
-    {
-        if (!Draft.HasOddJob ||
-            !string.IsNullOrWhiteSpace(Draft.OddJobCostText) ||
-            !TryParseNumber(Draft.OddJobRateText, out var rate) ||
-            !TryParseNumber(Draft.OddJobTime, out var hours))
-        {
-            return;
-        }
-        var people = Math.Max(1, Draft.OddJobPeople);
-        Draft.OddJobCostText = (people * rate * hours).ToString("0.##", CultureInfo.InvariantCulture);
-    }
-
-    private void UpdateMachineryCostIfEmpty()
-    {
-        if (!Draft.HasMachinery ||
-            !string.IsNullOrWhiteSpace(Draft.MachineryCostText) ||
-            !TryParseNumber(Draft.MachineryRateText, out var rate) ||
-            !TryParseNumber(Draft.MachineryTime, out var hours))
-        {
-            return;
-        }
-        Draft.MachineryCostText = (rate * hours).ToString("0.##", CultureInfo.InvariantCulture);
-    }
-
-    private void UpdateRestorationCostIfEmpty()
-    {
-        if (!Draft.Restored ||
-            !string.IsNullOrWhiteSpace(Draft.RestorationCostText) ||
-            !TryParseNumber(Draft.RestorationUnitPriceText, out var unitPrice) ||
-            !TryParseNumber(Draft.RestorationAreaText, out var area))
-        {
-            return;
-        }
-        Draft.RestorationCostText = (unitPrice * area).ToString("0.##", CultureInfo.InvariantCulture);
-    }
-
-    private static bool TryParseNumber(string text, out decimal value)
-    {
-        value = 0;
-        var match = Regex.Match(text ?? string.Empty, @"\d+(?:\.\d+)?");
-        return match.Success &&
-               decimal.TryParse(
-                   match.Value,
-                   NumberStyles.Number,
-                   CultureInfo.InvariantCulture,
-                   out value);
     }
 
     private static bool HasMeaningfulData(MaintenanceRecord record) =>

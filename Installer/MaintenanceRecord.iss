@@ -1,5 +1,5 @@
 #define MyAppName "管网维修"
-#define MyAppVersion "4.1.0"
+#define MyAppVersion "6.6.6"
 #define MyAppPublisher "Pipe Maintenance Contributors"
 #define MyAppExeName "MaintenanceRecord.exe"
 
@@ -15,19 +15,19 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-MinVersion=10.0.17763
+MinVersion=6.1.7601
 OutputDir=..\Builds
 OutputBaseFilename=MaintenanceRecord-Setup-{#MyAppVersion}
 SetupIconFile=..\MaintenanceRecordApp\Assets\app.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
-Compression=lzma2/max
+Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 CloseApplications=yes
 RestartApplications=no
 UsePreviousAppDir=yes
 DirExistsWarning=no
-VersionInfoVersion=4.1.0.0
+VersionInfoVersion=6.6.6.0
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName} 安装程序
 VersionInfoProductName={#MyAppName}

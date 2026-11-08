@@ -427,13 +427,28 @@ public sealed class NewRecordViewBindingTests
                 draft.MachineryType = "60型小挖";
                 draft.MachineryTime = "2";
                 Assert.Equal("145", draft.MachineryRateText);
-                Assert.Equal("290", draft.MachineryCostText);
+                Assert.Equal(290m, draft.MachineryCost);
+
+                draft.HasOddJob = true;
+                draft.OddJobType = "瓦工";
+                draft.OddJobPeople = 1;
+                draft.OddJobTime = "8";
+                Assert.Equal("25", draft.OddJobRateText);
+                Assert.Equal(200m, draft.OddJobCost);
+                draft.OddJobTime = "4";
+                Assert.Equal(100m, draft.OddJobCost);
 
                 draft.Restored = true;
                 draft.RestorationType = "水泥混凝土路面还原";
-                draft.RestorationAreaText = "2";
+                draft.RestorationLengthText = "2";
+                draft.RestorationWidthText = "1";
+                draft.RestorationHeightText = "1";
                 Assert.Equal("328", draft.RestorationUnitPriceText);
-                Assert.Equal("656", draft.RestorationCostText);
+                Assert.Equal(2m, draft.RestorationVolume);
+                Assert.Equal(656m, draft.RestorationCost);
+                draft.RestorationHeightText = "0.5";
+                Assert.Equal(1m, draft.RestorationVolume);
+                Assert.Equal(328m, draft.RestorationCost);
             }
             catch (Exception exception)
             {

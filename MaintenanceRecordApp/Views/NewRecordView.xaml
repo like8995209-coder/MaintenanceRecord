@@ -203,7 +203,7 @@
                     <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
                         <StackPanel>
                             <TextBlock Text="费用明细" Style="{StaticResource SectionTitleStyle}" />
-                            <TextBlock Text="选择已有类型会自动带出参考单价，并按人数、工时或面积计算小计；费用仍可手动调整。"
+                            <TextBlock Text="人工和机械按小时单价结算；还原按长 × 宽 × 高 × 单价自动计算。"
                                        FontSize="10"
                                        Foreground="{StaticResource MutedBrush}"
                                        TextWrapping="Wrap"
@@ -217,6 +217,8 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="12" />
                                     <RowDefinition Height="Auto" />
@@ -239,10 +241,11 @@
                                              Style="{StaticResource InputTextBoxStyle}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="4">
-                                    <TextBlock Text="杂工综合价（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBlock Text="人工小时单价（元/小时）" Style="{StaticResource FormLabelStyle}" />
                                     <TextBox x:Name="OddJobRateTextBox"
                                              Text="{Binding Draft.OddJobRateText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputTextBoxStyle}" />
+                                             Style="{StaticResource InputTextBoxStyle}"
+                                             ToolTip="例如瓦工 8 小时 200 元，则填写 25" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="2">
@@ -254,10 +257,11 @@
                                               Style="{StaticResource InputComboBoxStyle}" />
                                 </StackPanel>
                                 <StackPanel Grid.Row="2" Grid.Column="2">
-                                    <TextBlock Text="台班综合价（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBlock Text="机械小时单价（元/小时）" Style="{StaticResource FormLabelStyle}" />
                                     <TextBox x:Name="MachineryRateTextBox"
                                              Text="{Binding Draft.MachineryRateText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputTextBoxStyle}" />
+                                             Style="{StaticResource InputTextBoxStyle}"
+                                             ToolTip="按机械实际使用小时结算" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="4">
@@ -269,16 +273,44 @@
                                               Style="{StaticResource InputComboBoxStyle}" />
                                 </StackPanel>
                                 <StackPanel Grid.Row="4" Grid.Column="2">
-                                    <TextBlock Text="还原综合单价（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBlock Text="还原单价（元/m³）" Style="{StaticResource FormLabelStyle}" />
                                     <TextBox x:Name="RestorationUnitPriceTextBox"
                                              Text="{Binding Draft.RestorationUnitPriceText, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource InputTextBoxStyle}" />
                                 </StackPanel>
                                 <StackPanel Grid.Row="4" Grid.Column="4">
-                                    <TextBlock Text="还原面积 / 长度" Style="{StaticResource FormLabelStyle}" />
-                                    <TextBox x:Name="RestorationAreaTextBox"
-                                             Text="{Binding Draft.RestorationAreaText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputTextBoxStyle}" />
+                                    <TextBlock Text="还原工程量（自动）" Style="{StaticResource FormLabelStyle}" />
+                                    <Border Height="36"
+                                            Background="#EEF3F1"
+                                            CornerRadius="5"
+                                            Padding="10,0">
+                                        <TextBlock Text="{Binding Draft.RestorationVolumeText}"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource GreenBrush}" />
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="6">
+                                    <TextBlock Text="还原长度（米）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="RestorationLengthTextBox"
+                                             Text="{Binding Draft.RestorationLengthText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}"
+                                             ToolTip="填写实际还原长度，例如 2.5" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="6" Grid.Column="2">
+                                    <TextBlock Text="还原宽度（米）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="RestorationWidthTextBox"
+                                             Text="{Binding Draft.RestorationWidthText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}"
+                                             ToolTip="填写实际还原宽度，例如 1.2" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="6" Grid.Column="4">
+                                    <TextBlock Text="还原高度/厚度（米）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBox x:Name="RestorationHeightTextBox"
+                                             Text="{Binding Draft.RestorationHeightText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputTextBoxStyle}"
+                                             ToolTip="填写实际开挖深度或铺装厚度，例如 0.2" />
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -324,10 +356,11 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="杂工时间" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBlock Text="杂工工时（小时）" Style="{StaticResource FormLabelStyle}" />
                                         <TextBox x:Name="OddJobTimeTextBox"
                                                  Text="{Binding Draft.OddJobTime, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource InputTextBoxStyle}" />
+                                                 Style="{StaticResource InputTextBoxStyle}"
+                                                 ToolTip="按小时填写，例如 1.5 或 8" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="劳务公司" Style="{StaticResource FormLabelStyle}" />
@@ -343,9 +376,12 @@
                                                   Style="{StaticResource InputComboBoxStyle}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="4">
-                                        <TextBlock Text="杂工费用（元）" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBlock Text="杂工费用（自动）" Style="{StaticResource FormLabelStyle}" />
                                         <TextBox x:Name="OddJobCostTextBox"
-                                                 Text="{Binding Draft.OddJobCostText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Text="{Binding Draft.OddJobCost, Mode=OneWay, StringFormat={}{0:0.00}}"
+                                                 IsReadOnly="True"
+                                                 IsTabStop="False"
+                                                 Background="#EEF3F1"
                                                  Style="{StaticResource InputTextBoxStyle}" />
                                     </StackPanel>
                                 </Grid>
@@ -369,15 +405,19 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="机械时间" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBlock Text="机械工时（小时）" Style="{StaticResource FormLabelStyle}" />
                                         <TextBox x:Name="MachineryTimeTextBox"
                                                  Text="{Binding Draft.MachineryTime, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource InputTextBoxStyle}" />
+                                                 Style="{StaticResource InputTextBoxStyle}"
+                                                 ToolTip="按小时填写，例如 1.5 或 8" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="机械费用（元）" Style="{StaticResource FormLabelStyle}" />
+                                        <TextBlock Text="机械费用（自动）" Style="{StaticResource FormLabelStyle}" />
                                         <TextBox x:Name="MachineryCostTextBox"
-                                                 Text="{Binding Draft.MachineryCostText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Text="{Binding Draft.MachineryCost, Mode=OneWay, StringFormat={}{0:0.00}}"
+                                                 IsReadOnly="True"
+                                                 IsTabStop="False"
+                                                 Background="#EEF3F1"
                                                  Style="{StaticResource InputTextBoxStyle}" />
                                     </StackPanel>
                                 </Grid>
@@ -395,9 +435,12 @@
                                                  IsChecked="{Binding Draft.RestoredNo, Mode=TwoWay}" />
                                 </StackPanel>
                                 <StackPanel Grid.Row="4" Grid.Column="3" IsEnabled="{Binding Draft.Restored}">
-                                    <TextBlock Text="还原费用（元）" Style="{StaticResource FormLabelStyle}" />
+                                    <TextBlock Text="还原费用（自动）" Style="{StaticResource FormLabelStyle}" />
                                     <TextBox x:Name="RestorationCostTextBox"
-                                             Text="{Binding Draft.RestorationCostText, UpdateSourceTrigger=PropertyChanged}"
+                                             Text="{Binding Draft.RestorationCost, Mode=OneWay, StringFormat={}{0:0.00}}"
+                                             IsReadOnly="True"
+                                             IsTabStop="False"
+                                             Background="#EEF3F1"
                                              Style="{StaticResource InputTextBoxStyle}" />
                                 </StackPanel>
                             </Grid>
